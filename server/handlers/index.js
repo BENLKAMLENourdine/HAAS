@@ -1,5 +1,6 @@
 module.exports = {
     ...require('./hash'),
+    ...require('./auth')
 };
   
   module.exports.error = (err, req, res, next) => {

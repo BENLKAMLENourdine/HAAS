@@ -1,3 +1,5 @@
+const Crypto = require('crypto-js');
+
 exports.generateDummyHash = async (req, res, next) => {
   try {
     return res.status(200).json({
@@ -13,16 +15,20 @@ exports.generateDummyHash = async (req, res, next) => {
 
 exports.calculateHash = async (req, res, next) => {
     try {
-        const Crypto = require('crypto-js');
         const data = req.body.data
         const iteration = req.body.iteration
         const algorithm = req.body.algorithm
 
-        const hash = await Crypto.MD5(data).toString()
-
-
+        var hashedData
+        if(algorithm == "md5")
+          hashedData = await calculateHashWithMD5(data, iteration)
+        if(algorithm == "sha1")
+          hashedData = await calculateHashWithSHA1(data, iteration)
+        else(algorithm == "sha256")
+          hashedData = await calculateHashWithSHA256(data, iteration)
+  
       return res.status(200).json({
-          hash
+        hash: hashedData
       });
     } catch (err) {
       return next({
@@ -31,3 +37,49 @@ exports.calculateHash = async (req, res, next) => {
       });
     }
   };
+
+
+  async function calculateHashWithMD5(data, iteration){
+    var done = 1;
+    var hash = await Crypto.MD5(data)
+
+        for (var i = 1; i < iteration; i++) {
+                hash = await Crypto.MD5(hash)
+                done++;
+                if(done === iteration)
+                    break
+        }
+
+        hash = hash.toString()
+        return hash
+  }
+
+  async function calculateHashWithSHA1(data, iteration){
+    var done = 1;
+    var hash = await Crypto.SHA1(data)
+
+        for (var i = 1; i < iteration; i++) {
+                hash = await Crypto.SHA1(hash)
+                done++;
+                if(done === iteration)
+                    break
+        }
+
+        hash = hash.toString()
+        return hash
+  }
+
+  async function calculateHashWithSHA256(data, iteration){
+    var done = 1;
+    var hash = await Crypto.SHA256(data)
+
+        for (var i = 1; i < iteration; i++) {
+                hash = await Crypto.SHA256(hash)
+                done++;
+                if(done === iteration)
+                    break
+        }
+
+        hash = hash.toString()
+        return hash
+  }
